@@ -1,5 +1,4 @@
 
-
 let database;
 let selectedCircuito;
 
@@ -10,7 +9,11 @@ let nomiScuderie = [
 ];
 
 let coloriScuderie = [
-  [255, 125, 35], [35, 55, 125], [220, 35, 45], [115, 170, 175], [190, 155, 65], [40, 100, 190], [245, 205, 40], [35, 155, 110], [35, 75, 115], [50, 125, 190], [30, 115, 75], [65, 145, 85], [150, 30, 45]
+  [255, 125, 35], [35, 55, 125], [220, 35, 45],
+  [115, 170, 175], [190, 155, 65], [40, 100, 190],
+  [245, 205, 40], [35, 155, 110], [35, 75, 115],
+  [50, 125, 190], [30, 115, 75], [65, 145, 85],
+  [150, 30, 45]
 ];
 
 async function setup() {
@@ -24,8 +27,6 @@ async function setup() {
   let params = getURLParams();
   selectedCircuito = decodeURIComponent(params.circuito);
 
-
-
   createCanvas(windowWidth, windowHeight);
 }
 
@@ -34,9 +35,17 @@ function draw() {
 
   background(230, 230, 230);
 
-  let circuitoRow = database.findRow(selectedCircuito, "Circuito");
+  let circuitoRow = null;
 
-  if (circuitoRow) {
+  // CERCO IL CIRCUITO NEL DATABASE
+  for (let r = 0; r < database.getRowCount(); r++) {
+
+    if (database.get(r, 0) === selectedCircuito) {
+      circuitoRow = r;
+    }
+  }
+
+  if (circuitoRow !== null) {
 
     textAlign(CENTER);
     textSize(28);
@@ -45,8 +54,10 @@ function draw() {
 
     let massimoVittorie = 0;
 
+    // CALCOLO IL NUMERO MASSIMO DI VITTORIE
     for (let i = 0; i < nomiScuderie.length; i++) {
-      let vittorie = int(circuitoRow.get(nomiScuderie[i]));
+
+      let vittorie = database.getNum(circuitoRow, i + 1);
 
       if (vittorie > massimoVittorie) {
         massimoVittorie = vittorie;
@@ -55,15 +66,25 @@ function draw() {
 
     let vittorieScuderie = [];
 
-    let nomiScuderieOrdinate = nomiScuderie.slice();
-    let coloriScuderieOrdinate = coloriScuderie.slice();
+    let nomiScuderieOrdinate = [];
+    let coloriScuderieOrdinate = [];
 
+    // COPIO NOMI E COLORI DELLE SCUDERIE
     for (let i = 0; i < nomiScuderie.length; i++) {
-      let vittorie = int(circuitoRow.get(nomiScuderie[i]));
+
+      nomiScuderieOrdinate.push(nomiScuderie[i]);
+      coloriScuderieOrdinate.push(coloriScuderie[i]);
+    }
+
+    // LEGGO LE VITTORIE
+    for (let i = 0; i < nomiScuderie.length; i++) {
+
+      let vittorie = database.getNum(circuitoRow, i + 1);
 
       vittorieScuderie.push(vittorie);
     }
 
+    // ORDINO LE SCUDERIE PER NUMERO DI VITTORIE
     for (let i = 0; i < nomiScuderie.length; i++) {
 
       for (let j = i + 1; j < nomiScuderie.length; j++) {
@@ -85,10 +106,12 @@ function draw() {
       }
     }
 
+    // DIMENSIONI DELLE BARRE
     let larghezzaMassima = width * 0.55;
     let altezzaBarra = 22;
     let spazioBarre = 42;
 
+    // DISEGNO LE BARRE
     for (let i = 0; i < nomiScuderie.length; i++) {
 
       let vittorie = vittorieScuderie[i];
@@ -101,7 +124,6 @@ function draw() {
       if (massimoVittorie > 0) {
         larghezzaBarra = vittorie / massimoVittorie * larghezzaMassima;
       }
-
 
       fill(30);
       textAlign(RIGHT, CENTER);
@@ -117,8 +139,9 @@ function draw() {
       text(vittorie, x + larghezzaBarra + 10, y + altezzaBarra / 2);
     }
 
+    // PULSANTE PER TORNARE ALLA OVERVIEW
     fill(50);
-   rect(width - 210, height - 55, 180, 35);
+    rect(width - 210, height - 55, 180, 35);
 
     fill(255);
     textAlign(CENTER, CENTER);
@@ -129,9 +152,11 @@ function draw() {
 
     textAlign(CENTER);
     text("Circuito non trovato", width / 2, 100);
-
   }
 }
+
+
+// RITORNO ALLA OVERVIEW
 function mousePressed() {
 
   if (
@@ -142,5 +167,4 @@ function mousePressed() {
   ) {
     window.location.href = "index.html";
   }
-
 }

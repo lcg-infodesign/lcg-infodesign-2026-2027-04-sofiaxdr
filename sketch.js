@@ -158,8 +158,8 @@ function disegnaLegenda() {
 
   for (let i = 0; i < nomiScuderie.length; i++) {
 
-    let colonna = floor(i / 7);
-    let riga = i % 7;
+    let colonna = ceil((i + 1) / 7) - 1;
+    let riga = i - colonna * 7;
 
     let x = xRiquadro + 14 + colonna * 145;
     let y = yRiquadro + 34 + riga * 11;
@@ -188,7 +188,7 @@ function disegnaGriglia() {
   for (let i = 0; i < nomiCircuiti.length; i++) {
 
     let colonna = i % numeroColonne;
-    let riga = floor(i / numeroColonne);
+    let riga = (i - colonna) / numeroColonne;
 
     let x = margine + colonna * larghezzaCella + larghezzaCella / 2;
 
@@ -232,11 +232,7 @@ if (
       altezzaCella - diametroCircuito / 2 - 5
     );
   }
-    if (circuitoSottoMouse !== null) {
-    cursor(HAND);
-  } else {
-    cursor(ARROW);
-  }
+   
 }
 
 
@@ -253,7 +249,7 @@ function disegnaVittorie(indiceCircuito, centroX, centroY) {
 
       // Posizione del cerchio della scuderia
       let colonna = s % 4;
-      let riga = floor(s / 4);
+      let riga = (s - colonna) / 4;
 
       let offsetX = (colonna - 1.5) * 7;
       let offsetY = (riga - 1.5) * 7;
@@ -262,7 +258,7 @@ function disegnaVittorie(indiceCircuito, centroX, centroY) {
       let y = centroY + offsetY;
 
       // Dimensione proporzionale alle vittorie
-      let raggio = 2 + sqrt(numeroVittorie) * 0.65;
+      let raggio = 2 + map(numeroVittorie, 0, 100, 0, 6.5);
 
       // Cerchio trasparente della scuderia
       fill(colore[0], colore[1], colore[2], 55);
@@ -299,10 +295,11 @@ function mousePressed() {
   // Creo il nuovo URL
   let newURL = "detail.html?circuito=" + circuitoSottoMouse;
 
-  console.log(newURL);
 
   // Apro la pagina nella stessa scheda
   if (circuitoSottoMouse !== null) {
     window.location.href = newURL;
   }
 }
+
+
